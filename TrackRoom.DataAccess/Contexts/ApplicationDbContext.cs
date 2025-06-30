@@ -23,7 +23,7 @@ namespace TrackRoom.DataAccess.Contexts
             builder.Entity<IdentityRole>()
                 .HasData
                 (
-                     new IdentityRole() { Name = SD.Role_Admin, ConcurrencyStamp = "1", NormalizedName = SD.Role_Admin },
+                     new IdentityRole() { Name = SD.Role_Host, ConcurrencyStamp = "1", NormalizedName = SD.Role_Host },
                      new IdentityRole() { Name = SD.Role_User, ConcurrencyStamp = "2", NormalizedName = SD.Role_User }
                 );
         }
