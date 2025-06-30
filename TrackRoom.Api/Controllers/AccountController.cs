@@ -256,6 +256,9 @@ namespace TrackRoom.Api.Controllers
             var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var googleId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var name = result.Principal.Identity?.Name;
+            var profilePictureUrl = result.Principal.FindFirst("picture")?.Value;
+            var location = result.Principal.FindFirst("locale")?.Value;
+
 
             if (string.IsNullOrEmpty(email))
                 return BadRequest("Google account does not provide an email.");
@@ -271,6 +274,8 @@ namespace TrackRoom.Api.Controllers
                     FirstName = name?.Split(' ').FirstOrDefault() ?? "Google",
                     LastName = name?.Split(' ').Skip(1).FirstOrDefault() ?? "User",
                     EmailConfirmed = true,
+                    ProfilePictureUrl = profilePictureUrl,
+                    Location = location
                 };
 
                 var resultCreate = await _userManager.CreateAsync(user);
