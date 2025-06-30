@@ -11,6 +11,7 @@ using TrackRoom.DataAccess.Models;
 using TrackRoom.Services.DTOs.Responses;
 using TrackRoom.Services.Interfaces;
 using TrackRoom.Utilities;
+using Utilites;
 
 namespace TrackRoom.Services.Services
 {
@@ -63,7 +64,12 @@ namespace TrackRoom.Services.Services
                 FirstName = registerUser.FirstName,
                 LastName = registerUser.LastName,
                 SecurityStamp = Guid.NewGuid().ToString(), // to ensure the user is treated as new
-                TwoFactorEnabled = true
+                TwoFactorEnabled = true,
+                ProfilePictureUrl = registerUser.ProfilePicture != null
+                    ? await ImageHelper
+                    .SaveImageAsync(registerUser.ProfilePicture)
+                    : null,
+                Bio = registerUser.Bio != null ? registerUser.Bio : string.Empty,
             };
 
             var createResult = await _userManager.CreateAsync(user, registerUser.Password);

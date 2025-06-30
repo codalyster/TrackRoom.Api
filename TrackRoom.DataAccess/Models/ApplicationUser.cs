@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TrackRoom.DataAccess.Models
 {
@@ -15,7 +10,14 @@ namespace TrackRoom.DataAccess.Models
         [Required]
         public string LastName { get; set; }
 
+        public string? ProfilePictureUrl { get; set; }
+
+        public string? Bio { get; set; }
+
+        public string? Location { get; set; }
+
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
+
     }
 }

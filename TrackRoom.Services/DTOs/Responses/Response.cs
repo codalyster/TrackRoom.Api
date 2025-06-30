@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrackRoom.Services.DTOs.Responses
+﻿namespace TrackRoom.Services.DTOs.Responses
 {
     public class Response
     {
@@ -12,5 +6,6 @@ namespace TrackRoom.Services.DTOs.Responses
         public string? Message { get; set; }
 
         public bool IsSuccess { get; set; }
+
     }
 }

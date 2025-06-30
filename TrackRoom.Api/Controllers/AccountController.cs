@@ -187,6 +187,47 @@ namespace TrackRoom.Api.Controllers
         }
 
 
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return Ok(new Response { IsSuccess = true, Message = "Logged out successfully." });
+        }
+
+        [HttpGet("GetUserInfo")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(new Response
+                {
+                    IsSuccess = false,
+                    Message = "User not found."
+                });
+            }
+
+            var userInfo = new
+            {
+                user.Id,
+                user.Email,
+                user.UserName,
+                user.FirstName,
+                user.LastName,
+                user.PhoneNumber,
+                user.ProfilePictureUrl
+            };
+
+            return Ok(new GenericResponse<object>
+            {
+                IsSuccess = true,
+                Status = "Success",
+                Message = "User info retrieved successfully.",
+                Data = userInfo
+            });
+        }
+
         #region Private Methods
         private string GenerateSimpleOtp()
         {

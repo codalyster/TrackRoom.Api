@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrainHope.Services.DTO.Authentication.SingUp
 {
@@ -36,6 +31,17 @@ namespace BrainHope.Services.DTO.Authentication.SingUp
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [DataType(DataType.Upload)]
+        public IFormFile? ProfilePicture { get; set; }
+
+        [MaxLength(500, ErrorMessage = "Bio cannot exceed 500 characters.")]
+        public string? Bio { get; set; }
+
+
+        [MaxLength(100, ErrorMessage = "Location cannot exceed 100 characters.")]
+        public string? Location { get; set; }
+
     }
 
 }
