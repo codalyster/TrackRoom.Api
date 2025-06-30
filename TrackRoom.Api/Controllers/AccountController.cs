@@ -69,7 +69,7 @@ namespace TrackRoom.Api.Controllers
             Confirm Email
         </a>
     </p>
-    <p>Best regards,<br>Mohamed Saad - Hawy</p>
+    <p>Best regards,<br>Track Room Service</p>
 </body>
 </html>"
             );

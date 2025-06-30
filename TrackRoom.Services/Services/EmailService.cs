@@ -22,7 +22,7 @@ namespace TrackRoom.Services.Services
                 Subject = message.Subject,
                 Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message.Content }
             };
-            email.From.Add(new MailboxAddress("Your Application Name", _emailConfig.From));
+            email.From.Add(new MailboxAddress("Track Room", _emailConfig.From));
             email.To.AddRange(message.To);
 
             using var client = new SmtpClient();
