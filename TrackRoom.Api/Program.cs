@@ -1,12 +1,10 @@
-using BrainHope.Services.DTO.Email;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using BrainHope.Services.DTO.Email;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using System.Text;
 using TrackRoom.DataAccess;
 using TrackRoom.DataAccess.Contexts;
 using TrackRoom.DataAccess.Models;
+using TrackRoom.Infrastructure;
 using TrackRoom.Services;
 using TrackRoom.Services.Interfaces;
 using TrackRoom.Services.Services;
@@ -33,29 +31,25 @@ namespace TrackRoom.Api
                 .AddDefaultTokenProviders();
 
             #region JWT
-            // JWT config
-            builder.Services.AddAuthentication(options =>
+
+
+            #region Cores
+
+            // 🔹 Enable CORS
+            builder.Services.AddCors(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = config["JWT:ValidIssuer"],
-                    ValidAudience = config["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Secret"]))
-                };
+                    policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
             });
             #endregion
+            // ✅ Add infrastructure layer (JWT, Google)
+            builder.Services.AddInfrastructure(builder.Configuration);
+            #endregion
+
 
             #region Email
             var Configure = builder.Configuration;
@@ -88,6 +82,7 @@ namespace TrackRoom.Api
             }
 
             app.UseStaticFiles();
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

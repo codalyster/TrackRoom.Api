@@ -1,9 +1,12 @@
 ﻿using BrainHope.Services.DTO.Authentication.SignIn;
 using BrainHope.Services.DTO.Authentication.SingUp;
 using BrainHope.Services.DTO.Email;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TrackRoom.DataAccess.Models;
 using TrackRoom.Services.DTOs.Responses;
 using TrackRoom.Services.Interfaces;
@@ -21,6 +24,7 @@ namespace TrackRoom.Api.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuthService _authServices;
         private readonly IOtpService _otpService;
+        //private readonly GoogleAuthService _googleAuthService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -227,6 +231,60 @@ namespace TrackRoom.Api.Controllers
                 Data = userInfo
             });
         }
+
+
+        [HttpGet("GoogleLogin")]
+        [AllowAnonymous]
+        public IActionResult GoogleLogin()
+        {
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("GoogleCallback")
+            };
+
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("GoogleCallback")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return Unauthorized(new Response { Status = "Error", IsSuccess = false, Message = "Google authentication failed." });
+
+            var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            var googleId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var name = result.Principal.Identity?.Name;
+
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Google account does not provide an email.");
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = name?.Split(' ').FirstOrDefault() ?? "Google",
+                    LastName = name?.Split(' ').Skip(1).FirstOrDefault() ?? "User",
+                    EmailConfirmed = true,
+                };
+
+                var resultCreate = await _userManager.CreateAsync(user);
+                if (!resultCreate.Succeeded)
+                    return StatusCode(500, "Failed to create user from Google account.");
+            }
+
+            var tokenResponse = await _authServices.GetJwtTokenAsync(user);
+            if (!tokenResponse.IsSuccess)
+                return StatusCode(500, tokenResponse);
+
+            return Ok(tokenResponse);
+        }
+
 
         #region Private Methods
         private string GenerateSimpleOtp()

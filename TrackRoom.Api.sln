@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackRoom.Api", "TrackRoom.Api\TrackRoom.Api.csproj", "{7E5D8888-D372-47FD-A1DA-DB14D8753745}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackRoom.Services", "TrackRoom.Services\TrackRoom.Services.csproj", "{CF8519DF-FC60-498E-B0B8-1DA5780F2503}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackRoom.Utilities", "TrackRoom.Utilities\TrackRoom.Utilities.csproj", "{0E7B6C06-445A-492D-BF35-7F0B481A3C4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackRoom.Infrastructure", "TrackRoom.Infrastructure\TrackRoom.Infrastructure.csproj", "{C5FBC7F3-1CB2-4DCD-A37B-F58170DA2F56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{0E7B6C06-445A-492D-BF35-7F0B481A3C4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E7B6C06-445A-492D-BF35-7F0B481A3C4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E7B6C06-445A-492D-BF35-7F0B481A3C4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5FBC7F3-1CB2-4DCD-A37B-F58170DA2F56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5FBC7F3-1CB2-4DCD-A37B-F58170DA2F56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5FBC7F3-1CB2-4DCD-A37B-F58170DA2F56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5FBC7F3-1CB2-4DCD-A37B-F58170DA2F56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

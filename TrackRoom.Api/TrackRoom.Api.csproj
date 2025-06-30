@@ -8,15 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrackRoom.Infrastructure\TrackRoom.Infrastructure.csproj" />
     <ProjectReference Include="..\TrackRoom.Services\TrackRoom.Services.csproj" />
     <ProjectReference Include="..\TrackRoom.Utilities\TrackRoom.Utilities.csproj" />
     <ProjectReference Include="..\TrackRoom.DataAccess\TrackRoom.DataAccess.csproj" />
