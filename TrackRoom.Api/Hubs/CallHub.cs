@@ -15,7 +15,8 @@
             await Groups.AddToGroupAsync(Context.ConnectionId, meetingId);
 
             var userId = Context.UserIdentifier ?? "Anonymous";
-            await Clients.Group(meetingId).SendAsync("UserJoined", new
+            var userName = Context.User?.Identity?.Name ?? "Unknown User";
+            await Clients.Group(meetingId).SendAsync(userName, new
             {
                 ConnectionId = Context.ConnectionId,
                 UserId = userId
