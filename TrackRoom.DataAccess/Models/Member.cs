@@ -15,7 +15,9 @@ namespace TrackRoom.DataAccess.Models
 
         public DateTime? LeftAt { get; set; }
 
+        [ForeignKey(nameof(Meeting))]
         public string MeetingId { get; set; } = null!;
+        public Meeting Meeting { get; set; } = null!;
 
     }
 }
