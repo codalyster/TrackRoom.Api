@@ -13,10 +13,27 @@ namespace TrackRoom.DataAccess.Contexts
         {
 
         }
+
+        public DbSet<Meeting> Meetings { get; set; }
+        public DbSet<Member> Members { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             SeedRoles(builder);
+
+            builder.Entity<Member>()
+                .HasOne(m => m.ApplicationUser)
+                .WithMany()
+                .HasForeignKey(m => m.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Member>()
+                .HasOne(m => m.Meeting)
+                .WithMany(m => m.Members)
+                .HasForeignKey(m => m.MeetingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
         private static void SeedRoles(ModelBuilder builder)
         {

@@ -1,12 +1,19 @@
 ﻿namespace TrackRoom.Api.Hubs
 {
     using Microsoft.AspNetCore.SignalR;
+    using Microsoft.EntityFrameworkCore;
+    using TrackRoom.DataAccess.Contexts;
+    using TrackRoom.DataAccess.Models;
 
     public class CallHub : Hub
     {
-        /// <summary>
-        /// Adds the user to a SignalR group for the meeting and notifies others.
-        /// </summary>
+        private readonly ApplicationDbContext _context;
+
+        public CallHub(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         public async Task JoinMeeting(string meetingId)
         {
             if (string.IsNullOrWhiteSpace(meetingId))
@@ -14,18 +21,34 @@
 
             await Groups.AddToGroupAsync(Context.ConnectionId, meetingId);
 
-            var userId = Context.UserIdentifier ?? "Anonymous";
-            var userName = Context.User?.Identity?.Name ?? "Unknown User";
-            await Clients.Group(meetingId).SendAsync(userName, new
+            var userId = Context.UserIdentifier;
+            if (userId == null)
+                return;
+
+            // تحقق لو المستخدم موجود مسبقًا بنفس الـ meeting
+            var existingMember = await _context.Members
+                .FirstOrDefaultAsync(m => m.ApplicationUserId == userId && m.MeetingId == meetingId && m.LeftAt == null);
+
+            if (existingMember == null)
+            {
+                var newMember = new Member
+                {
+                    ApplicationUserId = userId,
+                    MeetingId = meetingId,
+                    JoinedAt = DateTime.UtcNow
+                };
+
+                _context.Members.Add(newMember);
+                await _context.SaveChangesAsync();
+            }
+
+            await Clients.Group(meetingId).SendAsync("UserJoined", new
             {
                 ConnectionId = Context.ConnectionId,
                 UserId = userId
             });
         }
 
-        /// <summary>
-        /// Removes the user from the meeting group and notifies others.
-        /// </summary>
         public async Task LeaveMeeting(string meetingId)
         {
             if (string.IsNullOrWhiteSpace(meetingId))
@@ -33,7 +56,19 @@
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, meetingId);
 
-            var userId = Context.UserIdentifier ?? "Anonymous";
+            var userId = Context.UserIdentifier;
+            if (userId == null)
+                return;
+
+            var member = await _context.Members
+                .FirstOrDefaultAsync(m => m.ApplicationUserId == userId && m.MeetingId == meetingId && m.LeftAt == null);
+
+            if (member != null)
+            {
+                member.LeftAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
             await Clients.Group(meetingId).SendAsync("UserLeft", new
             {
                 ConnectionId = Context.ConnectionId,
@@ -41,9 +76,6 @@
             });
         }
 
-        /// <summary>
-        /// Sends a WebRTC offer to a specific user in the meeting.
-        /// </summary>
         public async Task SendOffer(string meetingId, string targetConnectionId, string offer)
         {
             if (string.IsNullOrWhiteSpace(targetConnectionId) || string.IsNullOrWhiteSpace(offer))
@@ -52,9 +84,6 @@
             await Clients.Client(targetConnectionId).SendAsync("ReceiveOffer", Context.ConnectionId, offer);
         }
 
-        /// <summary>
-        /// Sends a WebRTC answer to a specific user in the meeting.
-        /// </summary>
         public async Task SendAnswer(string meetingId, string targetConnectionId, string answer)
         {
             if (string.IsNullOrWhiteSpace(targetConnectionId) || string.IsNullOrWhiteSpace(answer))
@@ -63,9 +92,6 @@
             await Clients.Client(targetConnectionId).SendAsync("ReceiveAnswer", Context.ConnectionId, answer);
         }
 
-        /// <summary>
-        /// Sends an ICE candidate to a specific user in the meeting.
-        /// </summary>
         public async Task SendCandidate(string meetingId, string targetConnectionId, string candidate)
         {
             if (string.IsNullOrWhiteSpace(targetConnectionId) || string.IsNullOrWhiteSpace(candidate))
@@ -74,24 +100,13 @@
             await Clients.Client(targetConnectionId).SendAsync("ReceiveCandidate", Context.ConnectionId, candidate);
         }
 
-        /// <summary>
-        /// (Optional) Override when user disconnects.
-        /// </summary>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            // ممكن تضيف لوجيك لتسجيل خروج المستخدم تلقائيًا من الميتنج.
+            // ممكن تطور الجزء ده لاحقًا عشان تمسك آخر اجتماع للمستخدم وتحدث LeftAt تلقائيًا
             await base.OnDisconnectedAsync(exception);
         }
-
-        //public override Task OnConnectedAsync()
-        //{
-        //    return base.OnConnectedAsync();
-        //}
-        //public override Task OnDisconnectedAsync(Exception? exception)
-        //{
-        //    return base.OnDisconnectedAsync(exception);
-        //}
     }
+
 
 
 }
