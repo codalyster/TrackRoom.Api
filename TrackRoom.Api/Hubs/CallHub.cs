@@ -1,16 +1,44 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace TrackRoom.Api.Hubs
+﻿namespace TrackRoom.Api.Hubs
 {
+    using Microsoft.AspNetCore.SignalR;
+
     public class CallHub : Hub
     {
-        public async Task SendOffer(string user, string sdp)
-            => await Clients.User(user).SendAsync("ReceiveOffer", sdp);
+        public async Task JoinMeeting(string meetingId)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, meetingId);
+            await Clients.Group(meetingId).SendAsync("UserJoined", Context.ConnectionId);
+        }
 
-        public async Task SendAnswer(string user, string sdp)
-            => await Clients.User(user).SendAsync("ReceiveAnswer", sdp);
+        public async Task LeaveMeeting(string meetingId)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, meetingId);
+            await Clients.Group(meetingId).SendAsync("UserLeft", Context.ConnectionId);
+        }
 
-        public async Task SendCandidate(string user, string candidate)
-            => await Clients.User(user).SendAsync("ReceiveCandidate", candidate);
+        public async Task SendOffer(string meetingId, string targetConnectionId, string offer)
+        {
+            await Clients.Client(targetConnectionId).SendAsync("ReceiveOffer", Context.ConnectionId, offer);
+        }
+
+        public async Task SendAnswer(string meetingId, string targetConnectionId, string answer)
+        {
+            await Clients.Client(targetConnectionId).SendAsync("ReceiveAnswer", Context.ConnectionId, answer);
+        }
+
+        public async Task SendCandidate(string meetingId, string targetConnectionId, string candidate)
+        {
+            await Clients.Client(targetConnectionId).SendAsync("ReceiveCandidate", Context.ConnectionId, candidate);
+        }
+
+        //public override Task OnConnectedAsync()
+        //{
+        //    return base.OnConnectedAsync();
+        //}
+        //public override Task OnDisconnectedAsync(Exception? exception)
+        //{
+        //    return base.OnDisconnectedAsync(exception);
+        //}
     }
+
 }

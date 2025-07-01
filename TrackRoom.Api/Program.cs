@@ -68,6 +68,9 @@ namespace TrackRoom.Api
                 return ConnectionMultiplexer.Connect(redisConnection);
             });
 
+            builder.Services.AddSingleton<IMeetingService, MeetingService>();
+
+
             builder.Services.AddSignalR();
 
             var app = builder.Build();
