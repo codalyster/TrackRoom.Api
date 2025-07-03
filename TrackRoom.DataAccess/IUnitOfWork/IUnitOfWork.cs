@@ -1,4 +1,6 @@
 ﻿using TrackRoom.DataAccess.IRepository;
+using TrackRoom.DataAccess.Models;
+using TrackRoom.DataAccess.Repsitory;
 
 namespace TrackRoom.DataAccess.IUnitOfWorks
 {
@@ -13,6 +15,7 @@ namespace TrackRoom.DataAccess.IUnitOfWorks
         // Expose specific repositories
         IApplicationUserRepository ApplicationUserRepository { get; }
 
-        IMeetingRepository MeetingRepository { get; }
+        Repository<Meeting> MeetingRepository { get; }
+
     }
 }

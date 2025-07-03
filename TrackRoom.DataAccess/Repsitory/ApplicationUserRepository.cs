@@ -4,7 +4,7 @@ using TrackRoom.DataAccess.IRepository;
 using TrackRoom.DataAccess.Models;
 
 
-namespace TrackRoom.DataAccess.Repsitory
+namespace TrackRoom.DataAccess.Repository
 {
     public class ApplicationUserRepository : IApplicationUserRepository
     {

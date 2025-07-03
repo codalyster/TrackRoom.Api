@@ -1,14 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrackRoom.DataAccess.Contexts;
 using TrackRoom.DataAccess.IRepository;
 using TrackRoom.DataAccess.IUnitOfWorks;
+using TrackRoom.DataAccess.Repository;
 using TrackRoom.DataAccess.Repsitory;
 using TrackRoom.DataAccess.UnitOfWorks;
 

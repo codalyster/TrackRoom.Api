@@ -18,6 +18,7 @@ namespace TrackRoom.DataAccess.Repsitory
         public async Task AddAsync(T entity)
         {
             await _dbset.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public void Update(T entity)
@@ -28,6 +29,7 @@ namespace TrackRoom.DataAccess.Repsitory
         public void Delete(T entity)
         {
             _dbset.Remove(entity);
+
         }
 
         public void DeleteRange(IEnumerable<T> entities)

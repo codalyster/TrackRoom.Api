@@ -19,5 +19,7 @@ namespace TrackRoom.DataAccess.Models
         public string MeetingId { get; set; } = null!;
         public Meeting Meeting { get; set; } = null!;
 
+        public string ConnectionId { get; set; } = null!; // ✅ new field
+
     }
 }

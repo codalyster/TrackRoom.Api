@@ -47,6 +47,8 @@ namespace TrackRoom.Api
                 });
             });
             #endregion
+
+
             // ✅ Add infrastructure layer (JWT, Google)
             builder.Services.AddInfrastructure(builder.Configuration);
             #endregion
@@ -68,7 +70,7 @@ namespace TrackRoom.Api
                 return ConnectionMultiplexer.Connect(redisConnection);
             });
 
-            builder.Services.AddSingleton<IMeetingService, MeetingService>();
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
 
 
             builder.Services.AddSignalR();

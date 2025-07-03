@@ -12,5 +12,7 @@
 
         public string OrganizerId { get; set; } = null!;
 
+        public string OrganizerName { get; set; } = null!;
+
     }
 }

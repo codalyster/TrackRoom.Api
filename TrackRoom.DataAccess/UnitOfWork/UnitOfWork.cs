@@ -1,6 +1,8 @@
 ﻿using TrackRoom.DataAccess.Contexts;
 using TrackRoom.DataAccess.IRepository;
 using TrackRoom.DataAccess.IUnitOfWorks;
+using TrackRoom.DataAccess.Models;
+using TrackRoom.DataAccess.Repository;
 using TrackRoom.DataAccess.Repsitory;
 
 namespace TrackRoom.DataAccess.UnitOfWorks
@@ -10,7 +12,7 @@ namespace TrackRoom.DataAccess.UnitOfWorks
         private readonly ApplicationDbContext _dbContext;
         private readonly Dictionary<Type, object> _repositories = new();
         private IApplicationUserRepository _applicationUserRepository;
-        private IMeetingRepository _meetingRepository;
+        private Repository<Meeting> _meetingRepository;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -20,8 +22,8 @@ namespace TrackRoom.DataAccess.UnitOfWorks
         public IApplicationUserRepository ApplicationUserRepository =>
             _applicationUserRepository ??= new ApplicationUserRepository(_dbContext);
 
-        public IMeetingRepository MeetingRepository =>
-            _meetingRepository ??= new MeetingRepository(_dbContext);
+        public Repository<Meeting> MeetingRepository =>
+            _meetingRepository ??= new Repository<Meeting>(_dbContext);
 
         public IRepository<T> Repository<T>() where T : class
         {

@@ -18,6 +18,8 @@ namespace TrackRoom.DataAccess.Models
 
         public ApplicationUser Organizer { get; set; } = null!;
 
+        public string OrganizerName => $"{Organizer.FirstName} {Organizer.LastName}";
+
         public ICollection<Member> Members { get; set; } = new List<Member>();
 
     }
