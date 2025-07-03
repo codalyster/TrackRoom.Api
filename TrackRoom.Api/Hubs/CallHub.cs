@@ -69,7 +69,9 @@
                 await _context.SaveChangesAsync();
             }
 
-            await Clients.Group(meetingId).SendAsync("UserLeft", new
+            var userName = Context.User?.Identity?.Name ?? "Unknown User";
+
+            await Clients.Group(meetingId).SendAsync(userName, new
             {
                 ConnectionId = Context.ConnectionId,
                 UserId = userId
