@@ -233,6 +233,24 @@ namespace TrackRoom.Api.Controllers
         }
 
 
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = _userManager.Users.Select(u => new
+            {
+                u.Id,
+                u.Email,
+                u.UserName,
+                u.FirstName,
+                u.LastName,
+                u.PhoneNumber,
+                u.ProfilePictureUrl
+            }).ToList();
+
+
+            return Ok(users);
+        }
+
         [HttpGet("GoogleLogin")]
         [AllowAnonymous]
         public IActionResult GoogleLogin()

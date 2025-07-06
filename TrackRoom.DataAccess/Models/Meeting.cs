@@ -4,7 +4,7 @@ namespace TrackRoom.DataAccess.Models
 {
     public class Meeting
     {
-        public string Id { get; set; } = new Guid().ToString();
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Title { get; set; } = null!;
 
         public string Description { get; set; } = null!;
@@ -18,7 +18,10 @@ namespace TrackRoom.DataAccess.Models
 
         public ApplicationUser Organizer { get; set; } = null!;
 
+        public string OrganizerName => $"{Organizer.FirstName} {Organizer.LastName}";
+
         public ICollection<Member> Members { get; set; } = new List<Member>();
 
+        public bool IsEnded { get; set; } = false;
     }
 }

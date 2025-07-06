@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrackRoom.DataAccess.Contexts;
 
@@ -11,9 +12,11 @@ using TrackRoom.DataAccess.Contexts;
 namespace TrackRoom.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701040834_AddDbSets")]
+    partial class AddDbSets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,14 +54,14 @@ namespace TrackRoom.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "67034602-2f47-4b08-8863-c28552bb11ab",
+                            Id = "271a8fb0-72c1-4c0a-951d-777e739030a9",
                             ConcurrencyStamp = "1",
                             Name = "Host",
                             NormalizedName = "Host"
                         },
                         new
                         {
-                            Id = "0eb1433d-a383-45d8-8e97-502ee2624b21",
+                            Id = "2fecc2d3-0ace-4cbd-b996-a3ac0166749d",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -293,10 +296,6 @@ namespace TrackRoom.DataAccess.Migrations
                 {
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConnectionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("JoinedAt")
                         .HasColumnType("datetime2");

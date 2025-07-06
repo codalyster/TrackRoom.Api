@@ -1,17 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using TrackRoom.DataAccess.Contexts;
-using TrackRoom.DataAccess.IRepository;
-using TrackRoom.DataAccess.Models;
 
 namespace TrackRoom.DataAccess.Repsitory
 {
-    public class Repository<T> : IRepository<T> where T : ModelBase
+    public class Repository<T> : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _dbContext;
         internal DbSet<T> _dbset;
@@ -22,9 +15,10 @@ namespace TrackRoom.DataAccess.Repsitory
             _dbset = _dbContext.Set<T>();
         }
 
-        public void Add(T entity)
+        public async Task AddAsync(T entity)
         {
-            _dbset.Add(entity);
+            await _dbset.AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public void Update(T entity)
@@ -35,6 +29,7 @@ namespace TrackRoom.DataAccess.Repsitory
         public void Delete(T entity)
         {
             _dbset.Remove(entity);
+
         }
 
         public void DeleteRange(IEnumerable<T> entities)
@@ -42,21 +37,22 @@ namespace TrackRoom.DataAccess.Repsitory
             _dbset.RemoveRange(entities);
         }
 
-        public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
             IQueryable<T> query = tracked ? _dbset : _dbset.AsNoTracking();
             query = query.Where(filter);
 
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
             }
 
-            return query.FirstOrDefault();
+            return await query.FirstOrDefaultAsync();
         }
+
         public IQueryable<T> GetAllQuery(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = _dbset;
@@ -68,7 +64,7 @@ namespace TrackRoom.DataAccess.Repsitory
 
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
@@ -77,8 +73,7 @@ namespace TrackRoom.DataAccess.Repsitory
             return query;
         }
 
-
-        public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> query = _dbset;
 
@@ -89,13 +84,13 @@ namespace TrackRoom.DataAccess.Repsitory
 
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
                     query = query.Include(includeProp);
                 }
             }
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
     }
 }

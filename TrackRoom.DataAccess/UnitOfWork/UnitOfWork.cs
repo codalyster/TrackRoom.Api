@@ -1,48 +1,50 @@
-﻿using System.Collections;
-using TrackRoom.DataAccess.Contexts;
+﻿using TrackRoom.DataAccess.Contexts;
 using TrackRoom.DataAccess.IRepository;
 using TrackRoom.DataAccess.IUnitOfWorks;
 using TrackRoom.DataAccess.Models;
+using TrackRoom.DataAccess.Repository;
 using TrackRoom.DataAccess.Repsitory;
 
 namespace TrackRoom.DataAccess.UnitOfWorks
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _dbcontext;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly Dictionary<Type, object> _repositories = new();
+        private IApplicationUserRepository _applicationUserRepository;
+        private Repository<Meeting> _meetingRepository;
 
-        public IApplicationUserRepository ApplicationUserRepository { get; private set; }
-
-        private Hashtable _repsitories;
-        public UnitOfWork(ApplicationDbContext dbcontext)
+        public UnitOfWork(ApplicationDbContext dbContext)
         {
-            this._dbcontext = dbcontext;
-            _repsitories = new Hashtable();
-            ApplicationUserRepository = new ApplicationUserRepository(_dbcontext);
+            _dbContext = dbContext;
         }
-        public Repository<T> Repository<T>() where T : ModelBase
+
+        public IApplicationUserRepository ApplicationUserRepository =>
+            _applicationUserRepository ??= new ApplicationUserRepository(_dbContext);
+
+        public Repository<Meeting> MeetingRepository =>
+            _meetingRepository ??= new Repository<Meeting>(_dbContext);
+
+        public IRepository<T> Repository<T>() where T : class
         {
-            var Key = typeof(T).Name;
-            if (!_repsitories.ContainsKey(Key))
+            var type = typeof(T);
+            if (!_repositories.ContainsKey(type))
             {
-                var repo = new Repository<T>(_dbcontext);
-                _repsitories.Add(Key, repo);
+                var repoInstance = new Repository<T>(_dbContext);
+                _repositories[type] = repoInstance;
             }
-            return _repsitories[Key] as Repository<T>;
+            return (IRepository<T>)_repositories[type];
         }
-
-
 
         public async Task<int> Complete()
         {
-            return await _dbcontext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
 
         public void Dispose()
         {
-            _dbcontext.Dispose();
+            _dbContext.Dispose();
         }
-
-
     }
+
 }

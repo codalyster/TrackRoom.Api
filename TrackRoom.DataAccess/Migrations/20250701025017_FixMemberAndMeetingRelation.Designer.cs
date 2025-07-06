@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrackRoom.DataAccess.Contexts;
 
@@ -11,9 +12,11 @@ using TrackRoom.DataAccess.Contexts;
 namespace TrackRoom.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701025017_FixMemberAndMeetingRelation")]
+    partial class FixMemberAndMeetingRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,14 +54,14 @@ namespace TrackRoom.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "67034602-2f47-4b08-8863-c28552bb11ab",
+                            Id = "6b9a4d90-19c5-4ee1-aa29-ddac49adf38b",
                             ConcurrencyStamp = "1",
                             Name = "Host",
                             NormalizedName = "Host"
                         },
                         new
                         {
-                            Id = "0eb1433d-a383-45d8-8e97-502ee2624b21",
+                            Id = "a6c7db50-0042-4252-b700-ec313d8602b0",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"
@@ -259,62 +262,6 @@ namespace TrackRoom.DataAccess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("TrackRoom.DataAccess.Models.Meeting", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OrganizerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizerId");
-
-                    b.ToTable("Meetings");
-                });
-
-            modelBuilder.Entity("TrackRoom.DataAccess.Models.Member", b =>
-                {
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConnectionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("JoinedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LeftAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MeetingId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ApplicationUserId");
-
-                    b.HasIndex("MeetingId");
-
-                    b.ToTable("Members");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -364,41 +311,6 @@ namespace TrackRoom.DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("TrackRoom.DataAccess.Models.Meeting", b =>
-                {
-                    b.HasOne("TrackRoom.DataAccess.Models.ApplicationUser", "Organizer")
-                        .WithMany()
-                        .HasForeignKey("OrganizerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Organizer");
-                });
-
-            modelBuilder.Entity("TrackRoom.DataAccess.Models.Member", b =>
-                {
-                    b.HasOne("TrackRoom.DataAccess.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TrackRoom.DataAccess.Models.Meeting", "Meeting")
-                        .WithMany("Members")
-                        .HasForeignKey("MeetingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Meeting");
-                });
-
-            modelBuilder.Entity("TrackRoom.DataAccess.Models.Meeting", b =>
-                {
-                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

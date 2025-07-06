@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrackRoom.Services.Interfaces
+﻿namespace TrackRoom.Services.Interfaces
 {
     public interface IOtpService
     {

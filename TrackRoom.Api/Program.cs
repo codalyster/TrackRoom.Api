@@ -1,6 +1,7 @@
 ﻿using BrainHope.Services.DTO.Email;
 using Microsoft.AspNetCore.Identity;
 using StackExchange.Redis;
+using TrackRoom.Api.Hubs;
 using TrackRoom.DataAccess;
 using TrackRoom.DataAccess.Contexts;
 using TrackRoom.DataAccess.Models;
@@ -46,6 +47,8 @@ namespace TrackRoom.Api
                 });
             });
             #endregion
+
+
             // ✅ Add infrastructure layer (JWT, Google)
             builder.Services.AddInfrastructure(builder.Configuration);
             #endregion
@@ -67,6 +70,11 @@ namespace TrackRoom.Api
                 return ConnectionMultiplexer.Connect(redisConnection);
             });
 
+            builder.Services.AddScoped<IMeetingService, MeetingService>();
+
+
+            builder.Services.AddSignalR();
+
             var app = builder.Build();
 
             // Redis ImageHelper Config
@@ -87,6 +95,9 @@ namespace TrackRoom.Api
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+
+            app.MapHub<CallHub>("/callhub");
+
             app.Run();
         }
     }
