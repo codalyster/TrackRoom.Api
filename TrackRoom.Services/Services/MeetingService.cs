@@ -69,27 +69,27 @@ namespace TrackRoom.Services.Services
             return _meetingRepository.GetAllAsync(includeProperties: "Organizer");
         }
 
-        public Task<bool> UpdateMeetingAsync(MeetingDTO meeting)
+        public async Task<bool> UpdateMeetingAsync(MeetingDTO meeting)
         {
-            var updatedMeeting = new Meeting
-            {
-                Title = meeting.Title,
-                Description = meeting.Description,
-                StartTime = meeting.StartTime,
-                EndTime = meeting.EndTime,
-                OrganizerId = meeting.OrganizerId,
-            };
-
             try
             {
-                _meetingRepository.Update(updatedMeeting);
-                return Task.FromResult(true);
+                var existingMeeting = await _meetingRepository.GetAsync(m => m.Id == meeting.Id, tracked: true);
+
+                if (existingMeeting == null) return false;
+
+                existingMeeting.Title = meeting.Title;
+                existingMeeting.Description = meeting.Description;
+                existingMeeting.StartTime = meeting.StartTime;
+                existingMeeting.EndTime = meeting.EndTime;
+
+                _meetingRepository.Update(existingMeeting);
+                return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log the exception (ex) as needed
-                return Task.FromResult(false);
+                return false;
             }
         }
+
     }
 }
