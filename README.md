@@ -113,15 +113,8 @@ Feel free to fork the repo and open pull requests! If you’re interested in col
 📄 License
 MIT License - free to use, modify, and distribute.
 
-
 ## ✨ Authors
 
-- **[Abdullah Azmy](https://github.com/abdullahazmy)**  
-  *Backend .NET Developer | Linux Administrator*  
-  [🌐 Portfolio](https://abdullahazmy.github.io/) • [🔗 LinkedIn](https://www.linkedin.com/in/abdullahazmyelsherbini/)
-
-- **[Abdelrahman Alaa](https://github.com/Abdelrahman984)**  
-  *Backend Developer*  
-  [🔗 LinkedIn](https://www.linkedin.com/in/abdelrahman-alaa-backend)
-
-
+| [**Abdullah Azmy**](https://github.com/abdullahazmy) | [**Abdelrahman Alaa**](https://github.com/Abdelrahman984) |
+|:---------------------------:|:------------------------------:|
+| [🌐 Portfolio](https://abdullahazmy.github.io/)  <br> [🔗 LinkedIn](https://www.linkedin.com/in/abdullahazmyelsherbini/) | [🔗 LinkedIn](https://www.linkedin.com/in/abdelrahman-alaa-backend) |
