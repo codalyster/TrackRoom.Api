@@ -116,13 +116,12 @@ MIT License - free to use, modify, and distribute.
 
 ## ✨ Authors
 
-### 👨‍💻 Abdullah Azmy  
-**Backend .NET Developer** | **Linux Administrator**  
-🔗 [Portfolio](https://abdullahazmy.github.io/) • [LinkedIn](https://www.linkedin.com/in/abdullahazmyelsherbini/) • [GitHub](https://github.com/abdullahazmy)
+- **[Abdullah Azmy](https://github.com/abdullahazmy)**  
+  *Backend .NET Developer | Linux Administrator*  
+  [🌐 Portfolio](https://abdullahazmy.github.io/) • [🔗 LinkedIn](https://www.linkedin.com/in/abdullahazmyelsherbini/)
 
----
+- **[Abdelrahman Alaa](https://github.com/Abdelrahman984)**  
+  *Backend Developer*  
+  [🔗 LinkedIn](https://www.linkedin.com/in/abdelrahman-alaa-backend)
 
-### 👨‍💻 Abdelrahman Alaa  
-**Backend Developer**  
-🔗 [GitHub](https://github.com/Abdelrahman984) • [LinkedIn](https://www.linkedin.com/in/abdelrahman-alaa-backend)
 
