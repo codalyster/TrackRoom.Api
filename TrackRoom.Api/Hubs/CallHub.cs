@@ -22,14 +22,24 @@ namespace TrackRoom.Api.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, meetingId);
 
             var userId = Context.UserIdentifier;
-            if (userId == null)
-                return;
-
             var userName = Context.User?.Identity?.Name ?? "Unknown User";
 
-            // Check if the user is already joined (active)
+            if (string.IsNullOrWhiteSpace(userId))
+                return;
+
+            var meeting = await _context.Meetings
+                .Include(m => m.Organizer)
+                .FirstOrDefaultAsync(m => m.Id == meetingId);
+
+            if (meeting == null) return;
+
+            var isOrganizer = meeting.OrganizerId == userId;
+
             var existingMember = await _context.Members
-                .FirstOrDefaultAsync(m => m.ApplicationUserId == userId && m.MeetingId == meetingId && m.LeftAt == null);
+                .FirstOrDefaultAsync(m =>
+                    m.ApplicationUserId == userId &&
+                    m.MeetingId == meetingId &&
+                    m.LeftAt == null);
 
             if (existingMember == null)
             {
@@ -38,31 +48,34 @@ namespace TrackRoom.Api.Hubs
                     ApplicationUserId = userId,
                     MeetingId = meetingId,
                     JoinedAt = DateTime.UtcNow,
-                    ConnectionId = Context.ConnectionId // ✅ Store connection ID
+                    ConnectionId = Context.ConnectionId
                 };
 
                 _context.Members.Add(newMember);
                 await _context.SaveChangesAsync();
             }
 
-            // Send existing participants to the newly joined user
+            // Get other participants
             var otherParticipants = await _context.Members
+                .Include(m => m.ApplicationUser)
                 .Where(m => m.MeetingId == meetingId && m.LeftAt == null && m.ApplicationUserId != userId)
                 .Select(m => new
                 {
                     m.ApplicationUserId,
-                    m.ConnectionId
+                    m.ConnectionId,
+                    FullName = m.ApplicationUser.FirstName + " " + m.ApplicationUser.LastName,
+                    IsOrganizer = m.ApplicationUserId == meeting.OrganizerId
                 })
                 .ToListAsync();
 
             await Clients.Client(Context.ConnectionId).SendAsync("ExistingUsers", otherParticipants);
 
-            // Notify others in the group about the new user
             await Clients.GroupExcept(meetingId, Context.ConnectionId).SendAsync("UserJoined", new
             {
                 ConnectionId = Context.ConnectionId,
                 UserId = userId,
-                UserName = userName
+                UserName = userName,
+                IsOrganizer = isOrganizer
             });
         }
 
@@ -74,11 +87,14 @@ namespace TrackRoom.Api.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, meetingId);
 
             var userId = Context.UserIdentifier;
-            if (userId == null)
+            if (string.IsNullOrWhiteSpace(userId))
                 return;
 
             var member = await _context.Members
-                .FirstOrDefaultAsync(m => m.ApplicationUserId == userId && m.MeetingId == meetingId && m.LeftAt == null);
+                .FirstOrDefaultAsync(m =>
+                    m.ApplicationUserId == userId &&
+                    m.MeetingId == meetingId &&
+                    m.LeftAt == null);
 
             if (member != null)
             {
@@ -94,6 +110,56 @@ namespace TrackRoom.Api.Hubs
                 UserId = userId,
                 UserName = userName
             });
+        }
+
+        public async Task EndMeeting(string meetingId)
+        {
+            var userId = Context.UserIdentifier;
+            if (string.IsNullOrWhiteSpace(userId))
+                return;
+
+            var meeting = await _context.Meetings.FirstOrDefaultAsync(m => m.Id == meetingId);
+            if (meeting == null || meeting.OrganizerId != userId)
+                return; // Unauthorized
+
+            var members = await _context.Members
+                .Where(m => m.MeetingId == meetingId && m.LeftAt == null)
+                .ToListAsync();
+
+            foreach (var member in members)
+                member.LeftAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            await Clients.Group(meetingId).SendAsync("MeetingEnded");
+
+            foreach (var member in members)
+            {
+                await Groups.RemoveFromGroupAsync(member.ConnectionId, meetingId);
+            }
+        }
+
+        public async Task KickUser(string meetingId, string targetConnectionId)
+        {
+            var userId = Context.UserIdentifier;
+            if (string.IsNullOrWhiteSpace(userId))
+                return;
+
+            var meeting = await _context.Meetings.FirstOrDefaultAsync(m => m.Id == meetingId);
+            if (meeting == null || meeting.OrganizerId != userId)
+                return; // Only organizer can kick
+
+            var member = await _context.Members
+                .FirstOrDefaultAsync(m => m.MeetingId == meetingId && m.ConnectionId == targetConnectionId);
+
+            if (member != null)
+            {
+                member.LeftAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                await Clients.Client(targetConnectionId).SendAsync("Kicked");
+                await Groups.RemoveFromGroupAsync(targetConnectionId, meetingId);
+            }
         }
 
         public async Task SendOffer(string meetingId, string targetConnectionId, string offer)
@@ -112,7 +178,7 @@ namespace TrackRoom.Api.Hubs
             await Clients.Client(targetConnectionId).SendAsync("ReceiveAnswer", Context.ConnectionId, answer);
         }
 
-        public async Task SendCandidate(string meetingId, string targetConnectionId, string candidate)
+        public async Task SendIceCandidate(string meetingId, string targetConnectionId, string candidate)
         {
             if (string.IsNullOrWhiteSpace(targetConnectionId) || string.IsNullOrWhiteSpace(candidate))
                 return;
@@ -122,27 +188,30 @@ namespace TrackRoom.Api.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            // Try to find and mark the user as disconnected
             var userId = Context.UserIdentifier;
-            if (userId != null)
+
+            // Try fallback if userId is null
+            var member = userId != null
+                ? await _context.Members.FirstOrDefaultAsync(m =>
+                      m.ApplicationUserId == userId &&
+                      m.LeftAt == null &&
+                      m.ConnectionId == Context.ConnectionId)
+                : await _context.Members.FirstOrDefaultAsync(m =>
+                      m.LeftAt == null && m.ConnectionId == Context.ConnectionId);
+
+            if (member != null)
             {
-                var activeMember = await _context.Members
-                    .FirstOrDefaultAsync(m => m.ApplicationUserId == userId && m.LeftAt == null && m.ConnectionId == Context.ConnectionId);
+                member.LeftAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
 
-                if (activeMember != null)
+                await Clients.Group(member.MeetingId).SendAsync("UserLeft", new
                 {
-                    activeMember.LeftAt = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
+                    ConnectionId = Context.ConnectionId,
+                    UserId = member.ApplicationUserId,
+                    UserName = Context.User?.Identity?.Name ?? "Unknown User"
+                });
 
-                    await Clients.Group(activeMember.MeetingId).SendAsync("UserLeft", new
-                    {
-                        ConnectionId = Context.ConnectionId,
-                        UserId = userId,
-                        UserName = Context.User?.Identity?.Name ?? "Unknown User"
-                    });
-
-                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, activeMember.MeetingId);
-                }
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, member.MeetingId);
             }
 
             await base.OnDisconnectedAsync(exception);

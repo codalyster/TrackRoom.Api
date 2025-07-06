@@ -6,9 +6,9 @@ namespace TrackRoom.DataAccess.Models
     public class Member
     {
         [Key]
-        [ForeignKey(nameof(ApplicationUser))]
-        public string ApplicationUserId { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        public string ApplicationUserId { get; set; } = null!;
         public ApplicationUser ApplicationUser { get; set; } = null!;
 
         public DateTime? JoinedAt { get; set; }

@@ -22,5 +22,6 @@ namespace TrackRoom.DataAccess.Models
 
         public ICollection<Member> Members { get; set; } = new List<Member>();
 
+        public bool IsEnded { get; set; } = false;
     }
 }
